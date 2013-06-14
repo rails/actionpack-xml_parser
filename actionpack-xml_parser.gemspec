@@ -17,5 +17,5 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = %w( README.md )
   s.rdoc_options.concat ['--main',  'README.md']
 
-  s.add_dependency('actionpack', '~> 4.0.0.rc1')
+  s.add_dependency('actionpack', '>= 4.0.0.rc1', '< 4.1')
 end
