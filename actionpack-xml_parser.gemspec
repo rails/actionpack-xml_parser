@@ -18,4 +18,6 @@ Gem::Specification.new do |s|
   s.rdoc_options.concat ['--main',  'README.md']
 
   s.add_dependency('actionpack', '>= 4.0.0.rc1', '< 4.1')
+
+  s.add_development_dependency('rake')
 end
