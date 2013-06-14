@@ -9,7 +9,7 @@ Installation
 Include this gem into your Gemfile:
 
 ```ruby
-gem 'actionpack-xml_parser', github: 'rails/actionpack-xml_parser'
+gem 'actionpack-xml_parser'
 ```
 
 Then, add `ActionDispatch::XmlParamsParser` middleware after `ActionDispatch::ParamsParser`
