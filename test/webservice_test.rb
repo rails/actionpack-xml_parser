@@ -120,10 +120,10 @@ class WebServiceTest < ActionDispatch::IntegrationTest
     $stderr = StringIO.new
     with_test_route_set do
       post '/', '<foo type="symbol">value</foo>', 'CONTENT_TYPE' => 'application/xml'
-      assert_response 500
+      assert_response 400
 
       post '/', '<foo type="yaml">value</foo>', 'CONTENT_TYPE' => 'application/xml'
-      assert_response 500
+      assert_response 400
     end
   ensure
     $stderr = STDERR

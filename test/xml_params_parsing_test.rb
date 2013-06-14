@@ -74,7 +74,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
       output = StringIO.new
       xml = "<person><name>David</name><avatar type='file' name='me.jpg' content_type='image/jpg'>#{::Base64.encode64('ABC')}</avatar></pineapple>"
       post "/parse", xml, default_headers.merge('action_dispatch.show_exceptions' => true, 'action_dispatch.logger' => ActiveSupport::Logger.new(output))
-      assert_response :error
+      assert_response :bad_request
       output.rewind && err = output.read
       assert err =~ /Error occurred while parsing request parameters/
     end
