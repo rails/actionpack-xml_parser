@@ -26,7 +26,14 @@ module ActionDispatch
           request.content_mime_type
 
         if mime_type == Mime::XML
-          data = request.deep_munge(Hash.from_xml(request.body.read) || {})
+          if defined?(::ActionDispatch::Request::Utils)
+            # Rails 4.1
+            data = Request::Utils.deep_munge(Hash.from_xml(request.body.read) || {})
+          else
+            # Rails 4.0
+            data = request.deep_munge(Hash.from_xml(request.body.read) || {})
+          end
+
           data.with_indifferent_access
         else
           false
