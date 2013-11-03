@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'actionpack-xml_parser'
-  s.version     = '1.0.0'
+  s.version     = '1.0.1'
   s.summary     = 'XML parameters parser for Action Pack (removed from core in Rails 4.0)'
 
   s.required_ruby_version = '>= 1.9.3'
@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = %w( README.md )
   s.rdoc_options.concat ['--main',  'README.md']
 
-  s.add_dependency('actionpack', '>= 4.0.0.rc1', '< 4.1')
+  s.add_dependency('actionpack', '>= 4.0.0.rc1')
 
   s.add_development_dependency('rake')
 end
