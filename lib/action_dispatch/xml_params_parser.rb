@@ -30,6 +30,7 @@ module ActionDispatch
           munger = defined?(Request::Utils) ? Request::Utils : request
 
           data = munger.deep_munge(Hash.from_xml(request.body.read) || {})
+          request.body.rewind if request.body.respond_to?(:rewind)
           data.with_indifferent_access
         else
           false
