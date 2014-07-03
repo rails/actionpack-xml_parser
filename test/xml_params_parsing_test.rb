@@ -4,16 +4,19 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   class TestController < ActionController::Base
     class << self
       attr_accessor :last_request_parameters
+      attr_accessor :last_request
     end
 
     def parse
       self.class.last_request_parameters = request.request_parameters
+      self.class.last_request = request
       head :ok
     end
   end
 
   def teardown
     TestController.last_request_parameters = nil
+    TestController.last_request = nil
   end
 
   test "parses a strict rack.input" do
@@ -119,6 +122,15 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     assert_equal "image/gif", person['person']['avatars']['avatar'].last.content_type
     assert_equal "you.gif", person['person']['avatars']['avatar'].last.original_filename
     assert_equal "DEF", person['person']['avatars']['avatar'].last.read
+  end
+
+  test "rewinds body if it implements rewind" do
+    xml = "<person><name>Marie</name></person>"
+
+    with_test_routing do
+      post "/parse", xml, default_headers
+      assert_equal TestController.last_request.body.read, xml
+    end
   end
 
   private
