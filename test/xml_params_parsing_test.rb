@@ -42,9 +42,18 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   end
 
   test "nils are stripped from collections" do
-    assert_parses(
-      {"hash" => { "person" => nil} },
-      "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
+    if ActiveSupport::VERSION::MAJOR >= 5
+      # Rails 5 changes the behavior of #deep_munge for security reason.
+      # https://github.com/rails/rails/pull/16924
+      assert_parses(
+        {"hash" => { "person" => []} },
+        "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
+    else
+      assert_parses(
+        {"hash" => { "person" => nil} },
+        "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
+    end
+
     assert_parses(
       {"hash" => { "person" => ['foo']} },
       "<hash><person type=\"array\"><person>foo</person><person nil=\"true\"/></person>\n</hash>")
