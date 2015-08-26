@@ -1,9 +1,6 @@
 language: ruby
 sudo: false
 rvm:
-  - 1.9
-  - 2.0
-  - 2.1
   - 2.2
   - ruby-head
 gemfile:
@@ -17,10 +14,3 @@ matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
-  exclude:
-    - rvm: 1.9
-      gemfile: gemfiles/Gemfile-edge
-    - rvm: 2.0
-      gemfile: gemfiles/Gemfile-edge
-    - rvm: 2.1
-      gemfile: gemfiles/Gemfile-edge

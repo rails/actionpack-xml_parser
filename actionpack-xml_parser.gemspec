@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'actionpack-xml_parser'
-  s.version     = '1.0.2'
+  s.version     = '2.0.0'
   s.summary     = 'XML parameters parser for Action Pack (removed from core in Rails 4.0)'
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.2.2'
   s.license     = 'MIT'
 
   s.author      = 'Prem Sichanugrist'
