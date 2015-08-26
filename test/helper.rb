@@ -35,10 +35,10 @@ class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
 
   def self.build_app(routes = nil)
     RoutedRackApp.new(routes || ActionDispatch::Routing::RouteSet.new) do |middleware|
-      middleware.use "ActionDispatch::ShowExceptions", ActionDispatch::PublicExceptions.new(FIXTURE_LOAD_PATH)
-      middleware.use "ActionDispatch::ParamsParser"
-      middleware.use "ActionDispatch::XmlParamsParser"
-      middleware.use "Rack::Head"
+      middleware.use ActionDispatch::ShowExceptions, ActionDispatch::PublicExceptions.new(FIXTURE_LOAD_PATH)
+      middleware.use ActionDispatch::ParamsParser
+      middleware.use ActionDispatch::XmlParamsParser
+      middleware.use Rack::Head
       yield(middleware) if block_given?
     end
   end
