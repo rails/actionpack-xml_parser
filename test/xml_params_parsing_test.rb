@@ -35,7 +35,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
 
   def assert_parses(expected, xml)
     with_test_routing do
-      post "/parse", xml, default_headers
+      post "/parse", params: xml, headers: default_headers
       assert_response :ok
       assert_equal(expected, TestController.last_request_parameters)
     end
@@ -62,7 +62,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   test "parses hash params" do
     with_test_routing do
       xml = "<person><name>David</name></person>"
-      post "/parse", xml, default_headers
+      post "/parse", params: xml, headers: default_headers
       assert_response :ok
       assert_equal({"person" => {"name" => "David"}}, TestController.last_request_parameters)
     end
@@ -71,7 +71,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   test "parses single file" do
     with_test_routing do
       xml = "<person><name>David</name><avatar type='file' name='me.jpg' content_type='image/jpg'>#{::Base64.encode64('ABC')}</avatar></person>"
-      post "/parse", xml, default_headers
+      post "/parse", params: xml, headers: default_headers
       assert_response :ok
 
       person = TestController.last_request_parameters
@@ -85,7 +85,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     with_test_routing do
       output = StringIO.new
       xml = "<person><name>David</name><avatar type='file' name='me.jpg' content_type='image/jpg'>#{::Base64.encode64('ABC')}</avatar></pineapple>"
-      post "/parse", xml, default_headers.merge('action_dispatch.show_exceptions' => true, 'action_dispatch.logger' => ActiveSupport::Logger.new(output))
+      post "/parse", params: xml, headers: default_headers.merge('action_dispatch.show_exceptions' => true, 'action_dispatch.logger' => ActiveSupport::Logger.new(output))
       assert_response :bad_request
       output.rewind && err = output.read
       assert err =~ /Error occurred while parsing request parameters/
@@ -118,7 +118,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     end_body
 
     with_test_routing do
-      post "/parse", xml, default_headers
+      post "/parse", params: xml, headers: default_headers
       assert_response :ok
     end
 
@@ -137,7 +137,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     xml = "<person><name>Marie</name></person>"
 
     with_test_routing do
-      post "/parse", xml, default_headers
+      post "/parse", params: xml, headers: default_headers
       assert_equal TestController.last_request.body.read, xml
     end
   end
@@ -185,7 +185,7 @@ class RootLessXmlParamsParsingTest < ActionDispatch::IntegrationTest
   test "parses hash params" do
     with_test_routing do
       xml = "<name>David</name>"
-      post "/parse", xml, {'CONTENT_TYPE' => 'application/xml'}
+      post "/parse", params: xml, headers: {'CONTENT_TYPE' => 'application/xml'}
       assert_response :ok
       assert_equal({"name" => "David", "person" => {"name" => "David"}}, TestController.last_request_parameters)
     end

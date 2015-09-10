@@ -4,16 +4,22 @@ class WebServiceTest < ActionDispatch::IntegrationTest
   class TestController < ActionController::Base
     def assign_parameters
       if params[:full]
-        render :text => dump_params_keys
+        render plain: dump_params_keys
       else
-        render :text => (params.keys - ['controller', 'action']).sort.join(", ")
+        render plain: (params.keys - ['controller', 'action']).sort.join(", ")
       end
     end
 
     def dump_params_keys(hash = params)
       hash.keys.sort.inject("") do |s, k|
         value = hash[k]
-        value = Hash === value ? "(#{dump_params_keys(value)})" : ""
+
+        if value.is_a?(Hash) || value.is_a?(ActionController::Parameters)
+          value = "(#{dump_params_keys(value)})"
+        else
+          value = ""
+        end
+
         s << ", " unless s.empty?
         s << "#{k}#{value}"
       end
@@ -34,8 +40,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_post_xml
     with_test_route_set do
-      post "/", '<entry attributed="true"><summary>content...</summary></entry>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      post "/", params: '<entry attributed="true"><summary>content...</summary></entry>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert_equal 'entry', @controller.response.body
       assert @controller.params.has_key?(:entry)
@@ -46,8 +52,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_put_xml
     with_test_route_set do
-      put "/", '<entry attributed="true"><summary>content...</summary></entry>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      put "/", params: '<entry attributed="true"><summary>content...</summary></entry>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert_equal 'entry', @controller.response.body
       assert @controller.params.has_key?(:entry)
@@ -58,8 +64,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_put_xml_using_a_type_node
     with_test_route_set do
-      put "/", '<type attributed="true"><summary>content...</summary></type>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      put "/", params: '<type attributed="true"><summary>content...</summary></type>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert_equal 'type', @controller.response.body
       assert @controller.params.has_key?(:type)
@@ -70,8 +76,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_put_xml_using_a_type_node_and_attribute
     with_test_route_set do
-      put "/", '<type attributed="true"><summary type="boolean">false</summary></type>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      put "/", params: '<type attributed="true"><summary type="boolean">false</summary></type>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert_equal 'type', @controller.response.body
       assert @controller.params.has_key?(:type)
@@ -82,8 +88,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_post_xml_using_a_type_node
     with_test_route_set do
-      post "/", '<font attributed="true"><type>arial</type></font>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      post "/", params: '<font attributed="true"><type>arial</type></font>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert_equal 'font', @controller.response.body
       assert @controller.params.has_key?(:font)
@@ -94,8 +100,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_post_xml_using_a_root_node_named_type
     with_test_route_set do
-      post "/", '<type type="integer">33</type>',
-        {'CONTENT_TYPE' => 'application/xml'}
+      post "/", params: '<type type="integer">33</type>',
+        headers: {'CONTENT_TYPE' => 'application/xml'}
 
       assert @controller.params.has_key?(:type)
       assert_equal 33, @controller.params['type']
@@ -105,8 +111,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
   def test_post_xml_using_an_attributted_node_named_type
     with_test_route_set do
       with_params_parsers Mime::XML => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
-        post "/", '<request><type type="string">Arial,12</type><z>3</z></request>',
-          {'CONTENT_TYPE' => 'application/xml'}
+        post "/", params: '<request><type type="string">Arial,12</type><z>3</z></request>',
+          headers: {'CONTENT_TYPE' => 'application/xml'}
 
         assert_equal 'type, z', @controller.response.body
         assert @controller.params.has_key?(:type)
@@ -119,10 +125,10 @@ class WebServiceTest < ActionDispatch::IntegrationTest
   def test_post_xml_using_a_disallowed_type_attribute
     $stderr = StringIO.new
     with_test_route_set do
-      post '/', '<foo type="symbol">value</foo>', 'CONTENT_TYPE' => 'application/xml'
+      post '/', params: '<foo type="symbol">value</foo>', headers: {'CONTENT_TYPE' => 'application/xml'}
       assert_response 400
 
-      post '/', '<foo type="yaml">value</foo>', 'CONTENT_TYPE' => 'application/xml'
+      post '/', params: '<foo type="yaml">value</foo>', headers: {'CONTENT_TYPE' => 'application/xml'}
       assert_response 400
     end
   ensure
@@ -132,8 +138,8 @@ class WebServiceTest < ActionDispatch::IntegrationTest
   def test_register_and_use_xml_simple
     with_test_route_set do
       with_params_parsers Mime::XML => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
-        post "/", '<request><summary>content...</summary><title>SimpleXml</title></request>',
-          {'CONTENT_TYPE' => 'application/xml'}
+        post "/", params: '<request><summary>content...</summary><title>SimpleXml</title></request>',
+          headers: {'CONTENT_TYPE' => 'application/xml'}
 
         assert_equal 'summary, title', @controller.response.body
         assert @controller.params.has_key?(:summary)
@@ -146,15 +152,15 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_use_xml_ximple_with_empty_request
     with_test_route_set do
-      assert_nothing_raised { post "/", "", {'CONTENT_TYPE' => 'application/xml'} }
+      assert_nothing_raised { post "/", params: "", headers: {'CONTENT_TYPE' => 'application/xml'} }
       assert_equal '', @controller.response.body
     end
   end
 
   def test_dasherized_keys_as_xml
     with_test_route_set do
-      post "/?full=1", "<first-key>\n<sub-key>...</sub-key>\n</first-key>",
-        {'CONTENT_TYPE' => 'application/xml'}
+      post "/?full=1", params: "<first-key>\n<sub-key>...</sub-key>\n</first-key>",
+        headers: {'CONTENT_TYPE' => 'application/xml'}
       assert_equal 'action, controller, first_key(sub_key), full', @controller.response.body
       assert_equal "...", @controller.params[:first_key][:sub_key]
     end
@@ -175,7 +181,7 @@ class WebServiceTest < ActionDispatch::IntegrationTest
           <g type="date">1974-07-25</g>
         </data>
       XML
-      post "/", xml, {'CONTENT_TYPE' => 'application/xml'}
+      post "/", params: xml, headers: {'CONTENT_TYPE' => 'application/xml'}
 
       params = @controller.params
       assert_equal 15, params[:data][:a]
@@ -193,7 +199,7 @@ class WebServiceTest < ActionDispatch::IntegrationTest
       xml = <<-XML
         <data>&lt;foo &quot;bar&apos;s&quot; &amp; friends&gt;</data>
       XML
-      post "/", xml, {'CONTENT_TYPE' => 'application/xml'}
+      post "/", params: xml, headers: {'CONTENT_TYPE' => 'application/xml'}
       assert_equal %(<foo "bar's" & friends>), @controller.params[:data]
     end
   end

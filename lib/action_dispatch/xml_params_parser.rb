@@ -26,10 +26,11 @@ module ActionDispatch
           request.content_mime_type
 
         if mime_type == Mime::XML
-          # Rails 4.1 moved #deep_munge out of the request and into ActionDispatch::Request::Utils
+          # Rails 5 removed #deep_munge and replaced it with #normalize_encode_params
           munger = defined?(Request::Utils) ? Request::Utils : request
+          params = Hash.from_xml(request.body.read) || {}
 
-          data = munger.deep_munge(Hash.from_xml(request.body.read) || {})
+          data = munger.normalize_encode_params(params)
           request.body.rewind if request.body.respond_to?(:rewind)
           data.with_indifferent_access
         else
