@@ -25,7 +25,7 @@ module ActionDispatch
         mime_type = content_type_from_legacy_post_data_format_header(env) ||
           request.content_mime_type
 
-        if mime_type == Mime::XML
+        if mime_type == Mime[:xml]
           # Rails 5 removed #deep_munge and replaced it with #normalize_encode_params
           munger = defined?(Request::Utils) ? Request::Utils : request
           params = Hash.from_xml(request.body.read) || {}
@@ -44,7 +44,7 @@ module ActionDispatch
 
       def content_type_from_legacy_post_data_format_header(env)
         if env['HTTP_X_POST_DATA_FORMAT'].to_s.downcase == 'xml'
-          Mime::XML
+          Mime[:xml]
         end
       end
 

@@ -110,7 +110,7 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_post_xml_using_an_attributted_node_named_type
     with_test_route_set do
-      with_params_parsers Mime::XML => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
+      with_params_parsers Mime[:xml] => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
         post "/", params: '<request><type type="string">Arial,12</type><z>3</z></request>',
           headers: {'CONTENT_TYPE' => 'application/xml'}
 
@@ -137,7 +137,7 @@ class WebServiceTest < ActionDispatch::IntegrationTest
 
   def test_register_and_use_xml_simple
     with_test_route_set do
-      with_params_parsers Mime::XML => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
+      with_params_parsers Mime[:xml] => Proc.new { |data| Hash.from_xml(data)['request'].with_indifferent_access } do
         post "/", params: '<request><summary>content...</summary><title>SimpleXml</title></request>',
           headers: {'CONTENT_TYPE' => 'application/xml'}
 
