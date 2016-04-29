@@ -27,7 +27,7 @@ module ActionDispatch
 
         if mime_type == Mime::XML
           # Rails 4.1 moved #deep_munge out of the request and into ActionDispatch::Request::Utils
-          munger = defined?(Request::Utils) ? Request::Utils : request
+          munger = defined?(Request::Utils) && Request::Utils.respond_to?(:deep_munge) ? Request::Utils : request
 
           data = munger.deep_munge(Hash.from_xml(request.body.read) || {})
           request.body.rewind if request.body.respond_to?(:rewind)
