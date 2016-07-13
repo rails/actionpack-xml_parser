@@ -2,15 +2,15 @@ language: ruby
 sudo: false
 rvm:
   - 2.2
+  - 2.3.1
   - ruby-head
 gemfile:
   - gemfiles/Gemfile-edge
   - Gemfile
 notifications:
   email: false
-before_install:
-  - gem install bundler
 matrix:
   fast_finish: true
   allow_failures:
     - rvm: ruby-head
+cache: bundler
