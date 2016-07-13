@@ -36,10 +36,10 @@ module ActionDispatch
         else
           false
         end
-      rescue Exception => e # XML code block errors
+      rescue Exception # XML code block errors
         logger(env).debug "Error occurred while parsing request parameters.\nContents:\n\n#{request.raw_post}"
 
-        raise ActionDispatch::ParamsParser::ParseError.new(e.message, e)
+        raise ActionDispatch::ParamsParser::ParseError
       end
 
       def content_type_from_legacy_post_data_format_header(env)
