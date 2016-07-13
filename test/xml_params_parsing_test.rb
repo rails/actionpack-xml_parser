@@ -146,7 +146,7 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     def with_test_routing
       with_routing do |set|
         set.draw do
-          post ':action', :to => ::XmlParamsParsingTest::TestController
+          post 'parse', to: 'xml_params_parsing_test/test#parse'
         end
         yield
       end
@@ -195,7 +195,7 @@ class RootLessXmlParamsParsingTest < ActionDispatch::IntegrationTest
     def with_test_routing
       with_routing do |set|
         set.draw do
-          post ':action', :to => ::RootLessXmlParamsParsingTest::TestController
+          post 'parse', to: 'root_less_xml_params__parsing_test/test#parse'
         end
         yield
       end
