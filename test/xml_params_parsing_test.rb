@@ -19,20 +19,6 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
     TestController.last_request = nil
   end
 
-  test "parses a strict rack.input" do
-    class Linted
-      undef call if method_defined?(:call)
-      def call(env)
-        bar = env['action_dispatch.request.request_parameters']['foo']
-        result = "<ok>#{bar}</ok>"
-        [200, {"Content-Type" => "application/xml", "Content-Length" => result.length.to_s}, [result]]
-      end
-    end
-    req = Rack::MockRequest.new(ActionDispatch::XmlParamsParser.new(Linted.new))
-    resp = req.post('/', "CONTENT_TYPE" => "application/xml", :input => "<foo>bar</foo>", :lint => true)
-    assert_equal "<ok>bar</ok>", resp.body
-  end
-
   def assert_parses(expected, xml)
     with_test_routing do
       post "/parse", params: xml, headers: default_headers
@@ -42,17 +28,9 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   end
 
   test "nils are stripped from collections" do
-    if ActiveSupport::VERSION::MAJOR >= 5
-      # Rails 5 changes the behavior of #deep_munge for security reason.
-      # https://github.com/rails/rails/pull/16924
-      assert_parses(
-        {"hash" => { "person" => []} },
-        "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
-    else
-      assert_parses(
-        {"hash" => { "person" => nil} },
-        "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
-    end
+    assert_parses(
+      {"hash" => { "person" => []} },
+      "<hash><person type=\"array\"><person nil=\"true\"/></person></hash>")
 
     assert_parses(
       {"hash" => { "person" => ['foo']} },
@@ -60,25 +38,18 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
   end
 
   test "parses hash params" do
-    with_test_routing do
-      xml = "<person><name>David</name></person>"
-      post "/parse", params: xml, headers: default_headers
-      assert_response :ok
-      assert_equal({"person" => {"name" => "David"}}, TestController.last_request_parameters)
-    end
+    xml = "<person><name>David</name></person>"
+    assert_parses({"person" => {"name" => "David"}}, xml)
   end
 
   test "parses single file" do
-    with_test_routing do
-      xml = "<person><name>David</name><avatar type='file' name='me.jpg' content_type='image/jpg'>#{::Base64.encode64('ABC')}</avatar></person>"
-      post "/parse", params: xml, headers: default_headers
-      assert_response :ok
+    xml = "<person><name>David</name><avatar type='file' name='me.jpg' content_type='image/jpg'>#{::Base64.encode64('ABC')}</avatar></person>"
 
-      person = TestController.last_request_parameters
-      assert_equal "image/jpg", person['person']['avatar'].content_type
-      assert_equal "me.jpg", person['person']['avatar'].original_filename
-      assert_equal "ABC", person['person']['avatar'].read
-    end
+    person = ActionPack::XmlParser.call(xml)
+
+    assert_equal "image/jpg", person['person']['avatar'].content_type
+    assert_equal "me.jpg", person['person']['avatar'].original_filename
+    assert_equal "ABC", person['person']['avatar'].read
   end
 
   test "logs error if parsing unsuccessful" do
@@ -154,13 +125,6 @@ class XmlParamsParsingTest < ActionDispatch::IntegrationTest
 
     def default_headers
       {'CONTENT_TYPE' => 'application/xml'}
-    end
-end
-
-class LegacyXmlParamsParsingTest < XmlParamsParsingTest
-  private
-    def default_headers
-      {'HTTP_X_POST_DATA_FORMAT' => 'xml'}
     end
 end
 

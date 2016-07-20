@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.rdoc_options.concat ['--main',  'README.md']
 
   s.add_dependency('actionpack', '~> 5.x')
+  s.add_dependency('railties', '~> 5.x')
 
   s.add_development_dependency('rake')
 end

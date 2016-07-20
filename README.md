@@ -12,20 +12,6 @@ Include this gem into your Gemfile:
 gem 'actionpack-xml_parser'
 ```
 
-Then, add `ActionDispatch::XmlParamsParser` middleware after `ActionDispatch::ParamsParser`
-in `config/application.rb`:
-
-```ruby
-config.middleware.insert_after ActionDispatch::ParamsParser, ActionDispatch::XmlParamsParser
-```
-
-You may need to require the `ActionDispatch::XmlParamsParser` manually. Add the following
-in your `config/application.rb`:
-
-```ruby
-require 'action_dispatch/xml_params_parser'
-```
-
 Parameters parsing rules
 ------------------------
 
