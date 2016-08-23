@@ -1,9 +1,8 @@
 require 'bundler/setup'
 
 require 'active_support/testing/autorun'
+require 'action_pack/xml_parser'
 require 'action_controller'
-require 'action_dispatch'
-require 'action_dispatch/xml_params_parser'
 
 FIXTURE_LOAD_PATH = File.join(File.dirname(__FILE__), 'fixtures')
 SharedTestRoutes = ActionDispatch::Routing::RouteSet.new
@@ -33,11 +32,11 @@ end
 class ActionDispatch::IntegrationTest < ActiveSupport::TestCase
   include ActionDispatch::SharedRoutes
 
+  ActionPack::XmlParser.register
+
   def self.build_app(routes = nil)
     RoutedRackApp.new(routes || ActionDispatch::Routing::RouteSet.new) do |middleware|
       middleware.use ActionDispatch::ShowExceptions, ActionDispatch::PublicExceptions.new(FIXTURE_LOAD_PATH)
-      middleware.use ActionDispatch::ParamsParser
-      middleware.use ActionDispatch::XmlParamsParser
       middleware.use Rack::Head
       yield(middleware) if block_given?
     end
