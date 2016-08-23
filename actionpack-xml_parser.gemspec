@@ -1,7 +1,10 @@
+$:.push File.expand_path("../lib", __FILE__)
+require "action_pack/xml_parser/version"
+
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'actionpack-xml_parser'
-  s.version     = '2.0.0'
+  s.version     = ActionPack::XmlParser::VERSION
   s.summary     = 'XML parameters parser for Action Pack (removed from core in Rails 4.0)'
 
   s.required_ruby_version = '>= 2.2.2'
