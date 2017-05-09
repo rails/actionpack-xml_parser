@@ -20,8 +20,8 @@ Gem::Specification.new do |s|
   s.extra_rdoc_files = %w( README.md )
   s.rdoc_options.concat ['--main',  'README.md']
 
-  s.add_dependency('actionpack', '~> 5.x')
-  s.add_dependency('railties', '~> 5.x')
+  s.add_dependency('actionpack', '>= 5.0')
+  s.add_dependency('railties', '>= 5.0')
 
   s.add_development_dependency('rake')
 end
